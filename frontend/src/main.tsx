@@ -4,9 +4,11 @@ import { routes } from "./router/routes";
 import { mockData } from "./mocks/seedData";
 import { StatusBadge } from "./components/common/StatusBadge";
 import { StatCard } from "./components/common/StatCard";
+import { EmptyState } from "./components/common/EmptyState";
+import { PreviewPage } from "./pages/PreviewPage";
 import "./styles.css";
 
-function Page({ name }: { name: string }) {
+function DashboardPage({ name }: { name: string }) {
   const entities = Object.entries(mockData);
   const total = useMemo(() => entities.reduce((sum, [, rows]) => sum + rows.length, 0), [entities]);
   return <main className="page">
@@ -39,6 +41,27 @@ function Page({ name }: { name: string }) {
   </main>;
 }
 
+function PlaceholderPage({ name }: { name: string }) {
+  return <main className="page">
+    <section className="page-head">
+      <div>
+        <p className="eyebrow">stage-light</p>
+        <h1>{name}</h1>
+      </div>
+      <StatusBadge value="LOCAL_DATA" />
+    </section>
+    <EmptyState title={`${name}模块建设中`} />
+  </main>;
+}
+
+function CurrentPage({ route, name }: { route: string; name: string }) {
+  if (route === "/preview") return <PreviewPage />;
+  if (route === "/fixtures") return <PlaceholderPage name={name} />;
+  if (route === "/cues") return <PlaceholderPage name={name} />;
+  if (route === "/timeline") return <PlaceholderPage name={name} />;
+  return <DashboardPage name={name} />;
+}
+
 function App() {
   const [active, setActive] = useState<string>(routes[0]?.route ?? "/dashboard");
   const current = routes.find((route) => route.route === active) ?? routes[0];
@@ -47,7 +70,7 @@ function App() {
       <div className="brand">舞台灯光编排模拟器</div>
       <nav>{routes.map((route) => <button key={route.route} className={active === route.route ? "active" : ""} onClick={() => setActive(route.route)}>{route.name}</button>)}</nav>
     </aside>
-    <Page name={current?.name ?? "工作台"} />
+    <CurrentPage route={current?.route ?? "/dashboard"} name={current?.name ?? "工作台"} />
   </div>;
 }
 

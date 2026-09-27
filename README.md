@@ -2,6 +2,17 @@
 
 纯前端舞台灯光编排工具，支持灯具通道、场景 Cue、时间轴预览和演出方案导出，所有数据存在 IndexedDB。
 
+## 主备控交接台（舞台预览 `/preview`）
+
+演出时主控电脑卡死、备用电脑不知演到哪里的问题，由「主备控交接台」解决：
+
+- **双控台状态**：主控台 / 备控台各自展示当前场景、播放时刻、同步批次。
+- **落后标记**：主控调整场景或播放时刻后同步批次 +1，备控自动标出「落后 N 批」。
+- **同步备控**：主控点击「同步备控」，两侧场景、时刻、批次取齐，备控解除锁定。
+- **接管校验**：批次不一致时拒绝接管，并指出哪台控台落后、落后几个批次；批次一致才允许接管。
+- **接管锁定**：接管成功后原主控暂时失去控制，再次同步前无法操作。
+- **持久化**：交接状态与交接记录写入 localStorage，离开页面再回来仍在；多标签页通过 storage 事件实时同步，可开两个窗口模拟主备两台电脑。
+
 ## 快速启动
 
 ```bash
@@ -53,6 +64,9 @@ frontend/src/api, stores, types, constants, constructors, components/common, hoo
 - FixtureType: constants/FixtureType、types/FixtureType、constructors、logTemplates、errorMessages、筛选器、展示组件/控制器均有引用。
 - CueStatus: constants/CueStatus、types/CueStatus、constructors、logTemplates、errorMessages、筛选器、展示组件/控制器均有引用。
 - ChannelMode: constants/ChannelMode、types/ChannelMode、constructors、logTemplates、errorMessages、筛选器、展示组件/控制器均有引用。
+- ConsoleRole: constants/ConsoleRole、types/ConsoleRole、constructors/HandoverConstructor、services/handoverService、stores/HandoverStore、components/common/ConsolePanel、pages（舞台预览交接台）均有引用。
+- 交接日志模板: constants/handoverLogTemplates（BOOT/ADJUST/SYNC/TAKEOVER/TAKEOVER_REJECTED/RESET），被 constructors、services、stores、components/common/HandoverLogList 引用。
+- 交接错误码: constants/errorCodes 与 constants/errorMessages 中的 HANDOVER_* 条目，由 services/handoverService 抛出、stores/HandoverStore 包装提示。
 
 ## 为什么会牵一发动全身
 
